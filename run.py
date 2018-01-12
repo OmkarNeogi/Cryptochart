@@ -5,9 +5,9 @@ def init_collection_and_populate(crypto_model):
 	import datetime
 	import numpy
 	import pprint
-	import matplotlib
-	matplotlib.use('TkAgg')
-	import matplotlib.pyplot as plt
+	# import matplotlib
+	# matplotlib.use('TkAgg')
+	# import matplotlib.pyplot as plt
 
 	start_date = "2017-01-01"
 	end_date = datetime.datetime.now().strftime("%Y-%m-%d")
@@ -112,21 +112,9 @@ def init_collection_and_populate(crypto_model):
 	# plt.show()
 
 
-
-def perform_analyses(crypto_model):
-	import numpy
-	import pprint
-
-	last_31_dats_data = crypto_model.get_last_n_days_data(31)
-	input_date = [(item['price'], item['date_of_price']) for item in last_31_dats_data]
-
-
-
-
 def main():
 	crypto_model = CryptocurrencyModel('btc')
 	init_collection_and_populate(crypto_model)
-	# perform_analyses(crypto_model)
 
 if __name__ == "__main__":
 	main()
