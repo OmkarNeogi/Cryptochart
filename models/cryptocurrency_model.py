@@ -17,7 +17,7 @@ class CryptocurrencyModel:
 		return response
 
 	def query_one(self, where, select=None):
-		# UNIT TESTED. DID NOT PUT CONDITION WHERE IT TAKES ONLY ONE ARGUMENT
+		# UNIT TESTED. 
 		if select:
 			return self.collection.find_one(where)
 		else:
