@@ -16,6 +16,10 @@ class CryptocurrencyModel:
 		response = self.collection.insert_one(document)
 		return response
 
+	def upsert(self, query, document):
+		response = self.collection.update(query, document, upsert=True)
+		return response
+
 	def query_one(self, where, select=None):
 		# UNIT TESTED. 
 		if select:
@@ -31,7 +35,6 @@ class CryptocurrencyModel:
 			for row in response:
 				result.append(row)
 		else:
-			print('select None')
 			response = self.collection.find(where)
 			for row in response:
 				result.append(row)
@@ -40,19 +43,17 @@ class CryptocurrencyModel:
 
 	def get_last_n_days_data(self, n):
 		''' 
-		NOT COMPLETELY UNIT TESTED BECAUSE IT 
-		MIGHT GIVE WRONG VALUE IF TRYING TO FIND LAST N DAYS DATA
+		UNIT TESTED
 		'''
 		import datetime
 
 		def get_current_date_in_correct_format():
-			return datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+			return datetime.datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
 		start_date = get_current_date_in_correct_format()
 
 		result = []
 
-		date_N_days_ago = start_date - datetime.timedelta(days=n) # This might cause problems
-		for cursor in self.collection.find({'date_of_price':{"$gte": date_N_days_ago}}):
-			result.append(cursor)
-
+		date_N_days_ago = start_date - datetime.timedelta(days=n)
+		for cursor in self.collection.find({'fixed_data.date_of_price':{"$gte": date_N_days_ago}}, {'fixed_data':1, '_id':0}):
+			result.append(cursor['fixed_data'])
 		return result

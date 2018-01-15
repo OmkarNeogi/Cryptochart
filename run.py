@@ -5,26 +5,17 @@ def init_collection_and_populate(crypto_model):
 	import datetime
 	import numpy
 	import pprint
-	# import matplotlib
-	# matplotlib.use('TkAgg')
-	# import matplotlib.pyplot as plt
 
-	start_date = "2017-01-01"
+	start_date = "2017-11-01"
 	end_date = datetime.datetime.now().strftime("%Y-%m-%d")
 	coindesk_url = "https://api.coindesk.com/v1/bpi/historical/close.json?start="+start_date+"&end="+end_date
 	# coindesk_url = "https://api.coindesk.com/v1/bpi/historical/close.json"
 
 	coindesk_response = requests_get(coindesk_url)
-	# print(coindesk_response.json())
-
+	mixed = [(date, coindesk_response.json()['bpi'][date]) for date in coindesk_response.json()['bpi']]
+	
 	todays_date = datetime.datetime.strptime(datetime.datetime.now().strftime("%Y-%m-%d"), "%Y-%m-%d")
 
-	prices = [coindesk_response.json()['bpi'][date] for date in coindesk_response.json()['bpi']]
-	dates = [date for date in coindesk_response.json()['bpi']]
-
-	mixed = [(date, coindesk_response.json()['bpi'][date]) for date in coindesk_response.json()['bpi']]
-	# pprint.pprint(mixed)
-	
 	n = 15
 	prev = None
 	sma_15 = []
@@ -48,7 +39,7 @@ def init_collection_and_populate(crypto_model):
 			smma = prev / n
 		if smma:
 			result_smma = smma
-			sma_15.append((mixed[index][0], smma))
+			# sma_15.append((mixed[index][0], smma))
 		# SMMA link: www.20minutetraders.com/learning/moving_averages/smooth-moving-average.php
 
 		
@@ -73,7 +64,7 @@ def init_collection_and_populate(crypto_model):
 			rs = avg_gain / avg_loss
 
 			result_rsi = 100 - 100 / (1 + rs)
-			rsi.append((mixed[index][0], result_rsi))
+			# rsi.append((mixed[index][0], result_rsi))
 		else:
 			difference = mixed[index][1] - mixed[index-1][1]
 			current_gain = max(difference, 0)
@@ -86,30 +77,20 @@ def init_collection_and_populate(crypto_model):
 			rsi.append((mixed[index][0], result_rsi))
 		document = {
 			'date_of_price': datetime.datetime.strptime(mixed[index][0], "%Y-%m-%d"),
+			'date_string': mixed[index][0],
 			'price': mixed[index][1],
-			'updated_at': todays_date,
 			'smma': {
 				'granularity': 15,
 				'unit': 'day',
 				'value': result_smma
 			},
-			'rsi': result_rsi
+			'rsi': result_rsi,
+			'updated_at': todays_date
 		}
-		pprint.pprint(document)
-		crypto_model.insert(document)
+		# pprint.pprint(document)
 
-
-	# # plt.plot(dates, prices)
-	# new_dates = [item[0] for item in sma_15]
-	# new_rates = [item[1] for item in sma_15]
-	# # plt.plot(new_dates, new_rates)
-
-	# rsi_dates = [item[0] for item in rsi]
-	# rsi_values = [item[1] for item in rsi]
-	# # print('\n\n')
-	# # pprint.pprint(rsi)
-	# plt.plot(rsi_dates, rsi_values)
-	# plt.show()
+		query = {'fixed_data.date_of_price':datetime.datetime.strptime(mixed[index][0], "%Y-%m-%d")}
+		crypto_model.upsert(query, {"fixed_data": document})
 
 
 def main():
