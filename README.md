@@ -8,4 +8,5 @@ Write once read many behavior, GET request returns prices and analyses (Smoothed
 In progress: 
 1. D3.JS visualizaton - adding RSI. Button to remove SMMA on clicking double
 2. cron based scheduler
-3. nginx load balancing
+
+<img width="1440" alt="cryptochart-smma-screenshot" src="https://user-images.githubusercontent.com/13189478/40057770-3883c862-581d-11e8-8eba-99a433385c8b.png">
